@@ -3,6 +3,29 @@
 
 import numpy as np
 from PIL import Image
+import textract
+
+# def payload_document():
+#     print("What format is the document? \n 1. txt \n 2. doc/docx \n 3. xls/xlsx")
+#     fileType = input()
+#     print("Enter file name: ")
+#     fileName = input()
+
+#     if fileType == '1':
+#         f = open(fileName, "r")
+#         document_message = f.read()
+#         f.close()
+    
+#     elif fileType == '2':
+#         document_message = textract.process(fileName)
+    
+#     elif fileType == '3':
+#         document_message = textract.process(fileName)
+    
+#     else:
+#         print("Error: Unsupported File Type")
+
+#     return document_message + b'#####'    
 
 
 # Encoder Program
@@ -18,7 +41,8 @@ def encode(src, message, dest):
 
     total_pixels = array.size//n
 
-    message += "#####"
+    message += b"#####"
+    message = str(message, 'utf-8')
     b_message = ''.join([format(ord(i), "08b") for i in message])
     req_pixels = len(b_message)
 
@@ -79,8 +103,12 @@ def main():
     if func == '1':
         print("Enter Cover Image Path")
         src = input()
-        print("Enter Message to hide")
-        message = input()
+        # print("Enter Message to hide")
+        # message = input()
+        print("Enter file name: ")
+        fileName = input()
+        # message = payload_document(file_name)
+        message = textract.process(fileName)
         print("Enter Destination Path")
         dest = input()
         print("Encoding...")

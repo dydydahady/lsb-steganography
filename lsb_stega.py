@@ -71,7 +71,7 @@ def main():
     image_name = input("Enter file name of cover image: ")
     payload_data = input("Enter secret text message: ")
     encode(image_name, payload_data)
-    # print(decode(image_name))
+    print(decode(image_name))
     
 
 if __name__ == "__main__":
