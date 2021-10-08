@@ -21,8 +21,8 @@ def encode(src, message, dest):
     message += "#####"
     b_message = ''.join([format(ord(i), "08b") for i in message])
     req_pixels = len(b_message)
-    num_bit = input("Enter a number from 1 - 5: ")
-    if  1<=int(num_bit)<=5:
+    num_bit = input("Enter a number from 0 - 5: ")
+    if int(num_bit) not in range(0,6):
         print("Invalid bit selected.")
     if req_pixels > total_pixels:
         print("ERROR: Need larger file size")
@@ -31,6 +31,9 @@ def encode(src, message, dest):
         for p in range(total_pixels):
             for q in range(0, 3):
                 if index < req_pixels:
+                    if num_bit == 0:
+                        array[p][q] = int(bin(array[p][q])[2:10-num_bit] + b_message[index] , 2) #Take bit 2 to bit 9 of image binary
+                        index += num_bit
                     if num_bit == 1:
                         array[p][q] = int(bin(array[p][q])[2:10-num_bit] + b_message[index] + b_message[index+1], 2) #Take bit 2 to bit 9 of image binary
                         index += num_bit
@@ -72,11 +75,14 @@ def decode(src):
         n = 4
 
     total_pixels = array.size // n
+    num_bit = input("Enter a number from 0 - 5: ")
 
     hidden_bits = ""
     for p in range(total_pixels):
         for q in range(0, 3):
             hidden_bits += (bin(array[p][q])[2:][-1])
+
+
 
     hidden_bits = [hidden_bits[i:i + 8] for i in range(0, len(hidden_bits), 8)]
 
