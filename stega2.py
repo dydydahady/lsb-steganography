@@ -3,6 +3,7 @@
 
 import numpy as np
 from PIL import Image
+import sys
 
 
 # Encoder Program
@@ -21,41 +22,50 @@ def encode(src, message, dest):
     message += "#####"
     b_message = ''.join([format(ord(i), "08b") for i in message])
     req_pixels = len(b_message)
-    num_bit = input("Enter a number from 0 - 5: ")
-    if int(num_bit) not in range(0,6):
+    num_bit = int(input("Enter a number from 1 - 6: "))
+    # If req_pixels/num_bit =! whole number, prompt user to select another LSB
+
+
+    if num_bit not in range(1,7):
         print("Invalid bit selected.")
+
     if req_pixels > total_pixels:
         print("ERROR: Need larger file size")
     else:
-        index = 0
-        for p in range(total_pixels):
-            for q in range(0, 3):
-                if index < req_pixels:
-                    if num_bit == 0:
-                        array[p][q] = int(bin(array[p][q])[2:10-num_bit] + b_message[index] , 2) #Take bit 2 to bit 9 of image binary
-                        index += num_bit
-                    if num_bit == 1:
-                        array[p][q] = int(bin(array[p][q])[2:10-num_bit] + b_message[index] + b_message[index+1], 2) #Take bit 2 to bit 9 of image binary
-                        index += num_bit
-                    if num_bit == 2:
-                        array[p][q] = int(bin(array[p][q])[2:10 - num_bit] + b_message[index] + b_message[index + 1]+ b_message[index + 2], 2)
-                        index += num_bit
-                    if num_bit == 3:
-                        array[p][q] = int(
+        if req_pixels % num_bit == 0:
+            index = 0
+            for p in range(total_pixels):
+                for q in range(0, 3):
+                    if index < req_pixels:
+                        if num_bit == 1:
+                            array[p][q] = int(bin(array[p][q])[2:10-num_bit] + b_message[index] , 2) #Take bit 2 to bit 9 of image binary
+                            index += num_bit
+                        if num_bit == 2:
+                            array[p][q] = int(bin(array[p][q])[2:10-num_bit] + b_message[index] + b_message[index+1], 2) #Take bit 2 to bit 9 of image binary
+                            index += num_bit
+                        if num_bit == 3:
+                            array[p][q] = int(bin(array[p][q])[2:10 - num_bit] + b_message[index] + b_message[index + 1]+ b_message[index + 2], 2)
+                            index += num_bit
+                        if num_bit == 4:
+                            array[p][q] = int(
+                                bin(array[p][q])[2:10 - num_bit] + b_message[index] + b_message[index + 1] + b_message[
+                                    index + 2]+b_message[index +3], 2)
+                            index += num_bit
+                        if num_bit == 5:
+                            array[p][q] = int(
                             bin(array[p][q])[2:10 - num_bit] + b_message[index] + b_message[index + 1] + b_message[
-                                index + 2]+b_message[index +3], 2)
-                        index += num_bit
-                    if num_bit == 4:
-                        array[p][q] = int(
-                        bin(array[p][q])[2:10 - num_bit] + b_message[index] + b_message[index + 1] + b_message[
-                            index + 2] + b_message[index + 3]+b_message[index +4], 2)
-                        index += num_bit
-                    if num_bit == 5:
-                        array[p][q] = int(
+                                index + 2] + b_message[index + 3]+b_message[index +4], 2)
+                            index += num_bit
+                        if num_bit == 6:
+                            array[p][q] = int(
                             bin(array[p][q])[2:10 - num_bit] + b_message[index] + b_message[index + 1] + b_message[
                                 index + 2] + b_message[index + 3] + b_message[index + 4] + b_message[index + 5], 2)
-                        index += num_bit
-
+                            index += num_bit
+        else:
+            print("ERROR: Number of LSB not suitable for message size, pick another number.")
+            print("Message size = ",req_pixels)
+            print("Select LSB that is divisible by message size.")
+            sys.exit()
 
 
     array = array.reshape(height, width, n)
@@ -75,16 +85,19 @@ def decode(src):
         n = 4
 
     total_pixels = array.size // n
-    num_bit = input("Enter a number from 0 - 5: ")
+    num_bit = int(input("Enter a number from 1 - 6: "))
 
     hidden_bits = ""
     for p in range(total_pixels):
         for q in range(0, 3):
-            hidden_bits += (bin(array[p][q])[2:][-1])
+            hidden_bits += (bin(array[p][q])[2:][-num_bit:])
+            #hidden_bits += (bin(array[p][q])[2:][-int(num_bit)])
+
 
 
 
     hidden_bits = [hidden_bits[i:i + 8] for i in range(0, len(hidden_bits), 8)]
+    #hidden_bits = [hidden_bits[i:i + 10-int(num_bit)-1] for i in range(0, len(hidden_bits), 10-int(num_bit)-1)]
 
     message = ""
 
